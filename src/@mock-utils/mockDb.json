@@ -2,11 +2,28 @@
   "users": [
     {
       "id": "0",
-      "password": "5;4+0IOx:\\Dy",
+      "password": "string",
       "role": "admin",
       "displayName": "Abbott Keitch",
       "photoURL": "/assets/images/avatars/brian-hughes.jpg",
       "email": "admin@fusetheme.com",
+      "settings": {
+        "layout": {},
+        "theme": {}
+      },
+      "shortcuts": [
+        "apps.calendar",
+        "apps.mailbox",
+        "apps.contacts"
+      ]
+    },
+    {
+      "id": "1",
+      "password": "string",
+      "role": ["admin"],
+      "displayName": "Super Admin",
+      "photoURL": "/assets/images/avatars/male-01.jpg",
+      "email": "superadmin@fusetheme.com",
       "settings": {
         "layout": {},
         "theme": {}

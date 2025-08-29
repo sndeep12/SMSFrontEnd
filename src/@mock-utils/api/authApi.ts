@@ -12,6 +12,73 @@ import mockApi from '../mockApi';
 type UserAuthType = User & { password: string };
 
 const authApi = [
+	http.post('/api/auth/login', async ({ request }) => {
+		const api = mockApi('users');
+		const { username, password } = (await request.json()) as { username: string; password: string };
+
+		// Find user by email (username is email in this case)
+		const user = await api.find({ email: username }) as UserAuthType | null;
+
+		if (!user) {
+			return HttpResponse.json(
+				{ 
+					error: 'Invalid credentials',
+					data: [{ type: 'username', message: 'User not found' }]
+				}, 
+				{ status: 401 }
+			);
+		}
+
+		// Simple password check (in real app, use proper hashing)
+		if (user.password !== password) {
+			return HttpResponse.json(
+				{ 
+					error: 'Invalid credentials',
+					data: [{ type: 'password', message: 'Invalid password' }]
+				}, 
+				{ status: 401 }
+			);
+		}
+
+		// Generate JWT token
+		const token = generateJWTToken({ id: user.id, email: user.email });
+
+		// Remove password from response
+		const { password: _, ...userWithoutPassword } = user;
+
+		return HttpResponse.json({
+			user: userWithoutPassword,
+			token
+		});
+	}),
+
+	http.get('/api/auth/access-token', async ({ request }) => {
+		const authHeader = request.headers.get('Authorization') as string;
+
+		if (!authHeader) {
+			return HttpResponse.json({ error: 'No authorization header' }, { status: 401 });
+		}
+
+		const [scheme, token] = authHeader.split(' ');
+
+		if (scheme !== 'Bearer' || !token) {
+			return HttpResponse.json({ error: 'Invalid authorization format' }, { status: 401 });
+		}
+
+		if (verifyJWTToken(token)) {
+			const { id }: { id: string } = jwtDecode(token);
+			const api = mockApi('users');
+			const user = await api.find(id) as User | undefined;
+
+			if (user) {
+				const { password: _, ...userWithoutPassword } = user as UserAuthType;
+				return HttpResponse.json(userWithoutPassword);
+			}
+		}
+
+		return HttpResponse.json({ error: 'Invalid token' }, { status: 401 });
+	}),
+
 	http.post('/api/mock/auth/refresh', async ({ request }) => {
 		const newTokenResponse = await generateAccessToken(request);
 

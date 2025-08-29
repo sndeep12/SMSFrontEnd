@@ -42,7 +42,7 @@ function JwtSignInForm() {
 	const { isValid, dirtyFields, errors } = formState;
 
 	useEffect(() => {
-		setValue('username', 'superadmin', { shouldDirty: true, shouldValidate: true });
+		setValue('username', 'superadmin@fusetheme.com', { shouldDirty: true, shouldValidate: true });
 		setValue('password', 'string', { shouldDirty: true, shouldValidate: true });
 	}, [setValue]);
 
